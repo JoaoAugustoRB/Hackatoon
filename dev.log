@@ -1,0 +1,52 @@
+
+> moldguard@0.1.0 dev
+> next dev --port 3001
+
+▲ Next.js 16.2.4 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://10.30.0.74:3001
+✓ Ready in 906ms
+Creating turbopack project {
+  dir: 'C:\\Users\\joaopedro\\Documents\\GitHub\\Hackatoon\\Hackatoon',
+  testMode: true
+}
+
+○ Compiling /matrizes ...
+ GET /matrizes 200 in 5.0s (next.js: 4.4s, application-code: 668ms)
+ GET /matrizes 200 in 90ms (next.js: 8ms, application-code: 82ms)
+ GET / 200 in 696ms (next.js: 644ms, application-code: 51ms)
+ GET /matrizes/nova 200 in 919ms (next.js: 880ms, application-code: 39ms)
+ GET /alertas 200 in 817ms (next.js: 734ms, application-code: 83ms)
+ GET / 200 in 68ms (next.js: 8ms, application-code: 60ms)
+ GET / 200 in 50ms (next.js: 4ms, application-code: 45ms)
+ GET / 200 in 43ms (next.js: 7ms, application-code: 37ms)
+ GET /matrizes 200 in 44ms (next.js: 6ms, application-code: 38ms)
+ GET /matrizes/nova 200 in 53ms (next.js: 8ms, application-code: 45ms)
+ GET /matrizes/nova 200 in 31ms (next.js: 5ms, application-code: 25ms)
+ GET /alertas 200 in 73ms (next.js: 9ms, application-code: 64ms)
+ GET / 200 in 43ms (next.js: 4ms, application-code: 38ms)
+ GET /matrizes 200 in 35ms (next.js: 5ms, application-code: 31ms)
+ GET /matrizes/matriz_002 200 in 3.9s (next.js: 3.6s, application-code: 291ms)
+ GET /matrizes/matriz_002 200 in 242ms (next.js: 18ms, application-code: 224ms)
+ GET /matrizes/matriz_002 200 in 154ms (next.js: 19ms, application-code: 135ms)
+ POST /matrizes/matriz_002 200 in 91ms (next.js: 13ms, application-code: 77ms)
+  └─ ƒ simularLeituraAction("matriz_002") in 4ms src/app/actions.ts
+ POST /matrizes/matriz_002 200 in 86ms (next.js: 13ms, application-code: 73ms)
+  └─ ƒ simularLeituraAction("matriz_002") in 1ms src/app/actions.ts
+ POST /matrizes/matriz_002 200 in 66ms (next.js: 14ms, application-code: 53ms)
+  └─ ƒ simularLeituraAction("matriz_002") in 1ms src/app/actions.ts
+ POST /matrizes/matriz_002 200 in 70ms (next.js: 5ms, application-code: 65ms)
+  └─ ƒ simularLeituraAction("matriz_002") in 1ms src/app/actions.ts
+ POST /matrizes/matriz_002 200 in 100ms (next.js: 20ms, application-code: 81ms)
+  └─ ƒ simularLeituraAction("matriz_002") in 1ms src/app/actions.ts
+ POST /matrizes/matriz_002 200 in 121ms (next.js: 14ms, application-code: 107ms)
+  └─ ƒ simularLeituraAction("matriz_002") in 1ms src/app/actions.ts
+ POST /matrizes/matriz_002 200 in 117ms (next.js: 8ms, application-code: 108ms)
+  └─ ƒ simularLeituraAction("matriz_002") in 1ms src/app/actions.ts
+ POST /matrizes/matriz_002 200 in 93ms (next.js: 14ms, application-code: 79ms)
+  └─ ƒ simularLeituraAction("matriz_002") in 1ms src/app/actions.ts
+ GET /alertas 200 in 90ms (next.js: 4ms, application-code: 87ms)
+ POST /alertas 200 in 88ms (next.js: 7ms, application-code: 82ms)
+  └─ ƒ resolverAlertaAction("alerta_rbwzxf4e") in 1ms src/app/actions.ts
+ POST /alertas 200 in 159ms (next.js: 7ms, application-code: 152ms)
+  └─ ƒ resolverAlertaAction("alerta_matriz_002_temperatura") in 2ms src/app/actions.ts
