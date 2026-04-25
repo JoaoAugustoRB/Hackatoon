@@ -6,6 +6,7 @@ import { onValue, ref } from "firebase/database";
 import { StatusBadge } from "@/components/status-badge";
 import { calcularOEE, calcularVidaRestante } from "@/lib/calculations";
 import { getClientDatabase } from "@/lib/firebase/client";
+import { normalizeSnapshot } from "@/lib/snapshot";
 import { formatPercent } from "@/lib/utils";
 import type { MoldGuardSnapshot } from "@/types";
 
@@ -21,9 +22,11 @@ interface MatrixRow {
 }
 
 function mapRows(snapshot: MoldGuardSnapshot): MatrixRow[] {
-  return Object.values(snapshot.matrizes)
+  const normalized = normalizeSnapshot(snapshot);
+
+  return Object.values(normalized.matrizes)
     .map((matriz) => {
-      const leituras = Object.entries(snapshot.leituras[matriz.id] ?? {}).map(
+      const leituras = Object.entries(normalized.leituras[matriz.id] ?? {}).map(
         ([id, leitura]) => ({
           id,
           matrizId: matriz.id,
@@ -50,15 +53,14 @@ export function MatrixTable({
 }: {
   initialSnapshot: MoldGuardSnapshot;
 }) {
-  const [rows, setRows] = useState(() => mapRows(initialSnapshot));
+  const [rows, setRows] = useState(() => mapRows(normalizeSnapshot(initialSnapshot)));
 
   useEffect(() => {
     const db = getClientDatabase();
     if (!db) return;
 
     return onValue(ref(db, "/"), (event) => {
-      const next = event.val() as MoldGuardSnapshot | null;
-      if (!next) return;
+      const next = normalizeSnapshot(event.val() as Partial<MoldGuardSnapshot> | null);
       setRows(mapRows(next));
     });
   }, []);

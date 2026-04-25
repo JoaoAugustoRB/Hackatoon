@@ -8,12 +8,14 @@ import { SectionCard } from "@/components/section-card";
 import { StatusBadge } from "@/components/status-badge";
 import { calcularOEE } from "@/lib/calculations";
 import { getClientDatabase } from "@/lib/firebase/client";
+import { normalizeSnapshot } from "@/lib/snapshot";
 import { formatDateTime, formatPercent } from "@/lib/utils";
 import type { Alerta, DashboardStats, Matriz, MoldGuardSnapshot } from "@/types";
 
 function mapData(snapshot: MoldGuardSnapshot) {
-  const matrizes = Object.values(snapshot.matrizes);
-  const alertas = Object.entries(snapshot.alertas)
+  const normalized = normalizeSnapshot(snapshot);
+  const matrizes = Object.values(normalized.matrizes);
+  const alertas = Object.entries(normalized.alertas)
     .map(([id, alerta]) => ({ id, ...alerta }))
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
@@ -28,7 +30,7 @@ function mapData(snapshot: MoldGuardSnapshot) {
     oeeMedio:
       matrizes.length > 0
         ? (matrizes.reduce((acc, matriz) => {
-            const leituras = Object.entries(snapshot.leituras[matriz.id] ?? {}).map(
+            const leituras = Object.entries(normalized.leituras[matriz.id] ?? {}).map(
               ([id, leitura]) => ({
                 id,
                 matrizId: matriz.id,
@@ -56,7 +58,7 @@ export function RealtimeDashboard({
   initialStats: DashboardStats;
   initialAlertas: Alerta[];
 }) {
-  const [snapshot, setSnapshot] = useState(initialSnapshot);
+  const [snapshot, setSnapshot] = useState(() => normalizeSnapshot(initialSnapshot));
   const [stats, setStats] = useState(initialStats);
   const [alertas, setAlertas] = useState(initialAlertas);
 
@@ -65,8 +67,7 @@ export function RealtimeDashboard({
     if (!db) return;
 
     return onValue(ref(db, "/"), (event) => {
-      const nextSnapshot = event.val() as MoldGuardSnapshot | null;
-      if (!nextSnapshot) return;
+      const nextSnapshot = normalizeSnapshot(event.val() as Partial<MoldGuardSnapshot> | null);
 
       setSnapshot(nextSnapshot);
       const mapped = mapData(nextSnapshot);

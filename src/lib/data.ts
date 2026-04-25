@@ -87,6 +87,40 @@ function normalizeAlertas(snapshot: MoldGuardSnapshot) {
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
+function syncAlertasDaMatriz(
+  snapshot: MoldGuardSnapshot,
+  matriz: Matriz,
+  leitura: Leitura,
+  vidaRestante: number,
+) {
+  const alertasGerados = gerarAlertasDaLeitura(matriz, leitura, vidaRestante);
+  const tiposAtivos = new Set(alertasGerados.map((alerta) => alerta.tipo));
+  const tiposJaAbertos = new Set<string>();
+
+  for (const [alertaId, alerta] of Object.entries(snapshot.alertas)) {
+    if (alerta.matrizId !== matriz.id || alerta.resolvido) {
+      continue;
+    }
+
+    if (tiposAtivos.has(alerta.tipo)) {
+      tiposJaAbertos.add(alerta.tipo);
+      continue;
+    }
+
+    snapshot.alertas[alertaId] = {
+      ...alerta,
+      resolvido: true,
+    };
+  }
+
+  const novosAlertas = alertasGerados.filter((alerta) => !tiposJaAbertos.has(alerta.tipo));
+  for (const alerta of novosAlertas) {
+    snapshot.alertas[toSlugId("alerta")] = alerta;
+  }
+
+  return novosAlertas;
+}
+
 export async function getDashboardData() {
   const snapshot = await getSnapshot();
   const matrizes = normalizeMatrizes(snapshot.matrizes);
@@ -173,6 +207,16 @@ export async function createMatriz(data: Omit<Matriz, "id" | "createdAt" | "upda
   const snapshot = await getSnapshot();
   const id = toSlugId("matriz");
   const createdAt = new Date().toISOString();
+  const leituraInicial: Leitura = {
+    id: toSlugId("leitura"),
+    matrizId: id,
+    temperatura: Number((data.temperaturaLimite * 0.92).toFixed(1)),
+    vibracao: Number((data.vibracaoLimite * 0.88).toFixed(2)),
+    impacto: Number((data.impactoLimite * 0.9).toFixed(1)),
+    tempoCiclo: Number((data.cicloIdeal * 0.98).toFixed(1)),
+    pecaBoa: true,
+    createdAt,
+  };
   const baseMatriz: Matriz = {
     id,
     ...data,
@@ -182,10 +226,25 @@ export async function createMatriz(data: Omit<Matriz, "id" | "createdAt" | "upda
     updatedAt: createdAt,
   };
 
-  baseMatriz.saude = calcularSaudeMatriz(baseMatriz);
+  const vidaRestante = calcularVidaRestante(baseMatriz.ciclosAtuais, baseMatriz.vidaUtilTotal);
+  baseMatriz.saude = calcularSaudeMatriz(baseMatriz, leituraInicial);
   baseMatriz.status = classificarStatus(baseMatriz.saude);
   snapshot.matrizes[id] = baseMatriz;
-  snapshot.leituras[id] = {};
+  snapshot.leituras[id] = {
+    [leituraInicial.id]: {
+      temperatura: leituraInicial.temperatura,
+      vibracao: leituraInicial.vibracao,
+      impacto: leituraInicial.impacto,
+      tempoCiclo: leituraInicial.tempoCiclo,
+      pecaBoa: leituraInicial.pecaBoa,
+      createdAt: leituraInicial.createdAt,
+    },
+  };
+
+  const alertas = gerarAlertasDaLeitura(baseMatriz, leituraInicial, vidaRestante);
+  for (const alerta of alertas) {
+    snapshot.alertas[toSlugId("alerta")] = alerta;
+  }
 
   await writeSnapshot(snapshot);
 
@@ -236,10 +295,7 @@ export async function registerLeitura(
     createdAt: leitura.createdAt,
   };
 
-  const alertas = gerarAlertasDaLeitura(matrizAtualizada, leitura, vidaRestante);
-  for (const alerta of alertas) {
-    snapshot.alertas[toSlugId("alerta")] = alerta;
-  }
+  const alertas = syncAlertasDaMatriz(snapshot, matrizAtualizada, leitura, vidaRestante);
 
   await writeSnapshot(snapshot);
 

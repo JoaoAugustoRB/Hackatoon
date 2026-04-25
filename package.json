@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "simulate:firebase": "node scripts/firebase-live-updater.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",
